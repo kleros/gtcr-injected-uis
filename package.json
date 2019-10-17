@@ -15,17 +15,22 @@
     "lint": "eslint './src/**/*.js'"
   },
   "dependencies": {
-    "@kleros/erc-792": "^1.0.0",
+    "@kleros/archon": "^0.10.1",
     "@kleros/tcr": "^0.1.18",
     "@loadable/component": "^5.10.1",
-    "antd": "^3.24.0",
-    "ethers": "^4.0.37",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
+    "antd": "^3.20.1",
+    "bn.js": "^5.0.0",
+    "ethers": "^4.0.33",
+    "prop-types": "^15.7.2",
+    "qs": "^6.8.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "react-helmet": "^5.2.1",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.2.0",
-    "styled-components": "^4.4.0"
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "3.0.1",
+    "rlp": "^2.2.3",
+    "styled-components": "^4.3.2",
+    "use-debounce": "^3.1.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.0.0",

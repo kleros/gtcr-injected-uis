@@ -1,12 +1,64 @@
-import React, { Component } from 'react'
-import ArbitrableTokenList from '../../assets/contracts/arbitrable-token-list.json'
-import { eth, IPFS_URL, S3_URL, T2CR_URL, web3 } from '../../bootstrap/dapp-api'
-import './t2cr-evidence.css'
+import React, { useState, useEffect, useMemo } from 'react'
+import {
+  Typography,
+  Switch,
+  Descriptions,
+  Tooltip,
+  Card,
+  Icon,
+  Result
+} from 'antd'
+import PropTypes from 'prop-types'
+import { abi as _gtcr } from '@kleros/tcr/build/contracts/GeneralizedTCR.json'
+import { provider, archon } from '../../bootstrap/dapp-api'
+import itemTypes from '../../utils/item-types'
+import { gtcrDecode } from '../../utils/encoder'
+import { ethers } from 'ethers'
 
-class TTCREvidence extends Component {
-  state = { token: null }
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const ZERO_BYTES32 =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-  async componentDidMount() {
+const EthAddress = ({ address, networkName }) => (
+  <a
+    href={`https://${networkName}etherscan.io/address/${address}`}
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    {address.slice(0, 6)}...{address.slice(address.length - 4)}
+  </a>
+)
+
+EthAddress.propTypes = {
+  address: PropTypes.string.isRequired,
+  networkName: PropTypes.string.isRequired
+}
+
+const DisplaySelector = ({ type, value }) => {
+  switch (type) {
+    case itemTypes.ADDRESS:
+      return <EthAddress address={value || ZERO_ADDRESS} />
+    case itemTypes.TEXT:
+    case itemTypes.NUMBER:
+      return <Typography.Text>{value || 'XYZ'}</Typography.Text>
+    case itemTypes.BOOLEAN:
+      return <Switch disabled checked={value} />
+    case itemTypes.LONGTEXT:
+      return <Typography.Paragraph>{value}</Typography.Paragraph>
+    default:
+      throw new Error(`Unhandled type ${type}.`)
+  }
+}
+
+export default () => {
+  const [parameters, setParameters] = useState()
+  const [errored, setErrored] = useState()
+  const [metaEvidence, setmetaEvidence] = useState()
+  const [decodedItem, setDecodedItem] = useState()
+  const [item, setItem] = useState()
+
+  // Read query parameters.
+  useEffect(() => {
     if (window.location.search[0] !== '?') return
     const message = JSON.parse(
       window.location.search
@@ -27,76 +79,120 @@ class TTCREvidence extends Component {
     if (!arbitrableContractAddress || !disputeID || !arbitratorContractAddress)
       return
 
-    const arbitrableTokenList = eth
-      .contract(ArbitrableTokenList.abi)
-      .at(arbitrableContractAddress)
+    setParameters({
+      arbitrableContractAddress,
+      disputeID,
+      arbitratorContractAddress
+    })
+  }, [])
 
-    const ID = await arbitrableTokenList.arbitratorDisputeIDToTokenID(
+  const gtcr = useMemo(() => {
+    if (!parameters || !provider) return
+    const { arbitrableContractAddress } = parameters
+    try {
+      return new ethers.Contract(arbitrableContractAddress, _gtcr, provider)
+    } catch (err) {
+      console.error('Error instantiating gtcr contract', err)
+      setErrored(true)
+      return null
+    }
+  }, [parameters])
+
+  // Fetch meta evidence.
+  useEffect(() => {
+    if (!parameters || !archon) return
+    const {
+      arbitrableContractAddress,
       arbitratorContractAddress,
       disputeID
-    )
-    const token = await arbitrableTokenList.getTokenInfo(ID[0])
-    token.ID = ID[0]
-    this.setState({ token })
-  }
+    } = parameters(async () => {
+      const disputeLog = await archon.arbitrable.getDispute(
+        arbitrableContractAddress,
+        arbitratorContractAddress,
+        disputeID
+      )
+      setmetaEvidence(
+        await archon.arbitrable.getMetaEvidence(
+          arbitrableContractAddress,
+          disputeLog.metaEvidenceID
+        )
+      )
+    })()
+  }, [parameters])
 
-  onImgError = e => {
-    e.target.style.display = 'none'
-  }
+  // Fetch item.
+  useEffect(() => {
+    if (!gtcr) return
+    const { arbitratorContractAddress, disputeID } = parameters
+    ;(async () => {
+      try {
+        const itemID = await gtcr.arbitratorDisputeIDToItem(
+          arbitratorContractAddress,
+          disputeID
+        )
+        const item = await gtcr.getItemInfo(itemID)
+        setItem(item)
+      } catch (err) {
+        console.error(err)
+        setErrored(true)
+      }
+    })()
+  }, [gtcr, parameters])
 
-  render() {
-    const { token } = this.state
-    if (!token) return null
+  // Decode item bytes once we have it and the meta evidence.
+  useEffect(() => {
+    if (!item || !metaEvidence) return
+    const { columns } = metaEvidence
+    try {
+      setDecodedItem({
+        ...item,
+        decodedData: gtcrDecode({ columns, values: item.data })
+      })
+    } catch (err) {
+      console.error(err)
+      setErrored(true)
+    }
+  }, [item, metaEvidence])
 
-    let symbolURI
-    if (token.symbolMultihash)
-      symbolURI =
-        token.symbolMultihash[0] === '/'
-          ? `${IPFS_URL}${token.symbolMultihash}`
-          : `${S3_URL}/${token.symbolMultihash}`
-
+  if (errored)
     return (
-      <div className="TTCREvidence">
-        <h4 style={{ margin: '0 0 12px 0' }}>The Token in Question:</h4>
-        <div className="TTCREvidence-data">
-          <img className="TTCREvidence-symbol" src={symbolURI} alt="Avatar" />
-          <div className="TTCREvidence-data-card">
-            <div
-              className="TTCREvidence-container"
-              style={{ overflowX: 'initial' }}
-            >
-              <p className="TTCREvidence-container-name">
-                <b>{token.name}</b>
-              </p>
-              <p className="TTCREvidence-container-ticker">{token.ticker}</p>
-            </div>
-            <div className="TTCREvidence-data-separator" />
-            <div className="TTCREvidence-container">
-              <p className="TTCREvidence-container-multiline TTCREvidence-label">
-                Address
-              </p>
-              <p className="TTCREvidence-container-multiline TTCREvidence-value">
-                {web3.utils.toChecksumAddress(token.addr)}
-              </p>
-              <a
-                className="TTCREvidence-link"
-                href={`${T2CR_URL}/token/${token.ID}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <p
-                  className="TTCREvidence-container-multiline"
-                  style={{ marginTop: '10px' }}
-                >
-                  View Submission
-                </p>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Result
+        status="error"
+        title="Error fetching item."
+        subTitle="Are you on the correct network?"
+      />
     )
-  }
-}
 
-export default TTCREvidence
+  const { columns } = metaEvidence
+  const loading = !decodedItem
+
+  return (
+    <Card loading={loading}>
+      {columns && (
+        <Descriptions>
+          {columns.map((column, index) => (
+            <Descriptions.Item
+              key={index}
+              label={
+                <span>
+                  {column.label}
+                  {column.description && (
+                    <Tooltip title={column.description}>
+                      &nbsp;
+                      <Icon type="question-circle-o" />
+                    </Tooltip>
+                  )}
+                </span>
+              }
+            >
+              <DisplaySelector
+                type={column.type}
+                value={item && item.decodedData[index]}
+              />
+            </Descriptions.Item>
+          ))}
+        </Descriptions>
+      )}
+    </Card>
+  )
+}
