@@ -8,9 +8,7 @@
   "license": "MIT",
   "scripts": {
     "start": "react-scripts start",
-    "build": "yarn build:theme && react-scripts build",
-    "build:theme": "lessc --js ./src/bootstrap/theme.less ./src/bootstrap/theme.css",
-    "test": "react-scripts test",
+    "build": "react-scripts build",
     "release": "standard-version",
     "lint": "eslint './src/**/*.js'"
   },
