@@ -6,6 +6,7 @@
   "repository": "git@github.com:kleros/gtcr-injected-uis.git",
   "author": "kleros",
   "license": "MIT",
+  "homepage": "./",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
