@@ -31,13 +31,19 @@ const EthAddress = ({ address, networkName }) => (
 
 EthAddress.propTypes = {
   address: PropTypes.string.isRequired,
-  networkName: PropTypes.string.isRequired
+  networkName: PropTypes.string
 }
 
-const DisplaySelector = ({ type, value }) => {
+EthAddress.defaultProps = {
+  networkName: ''
+}
+
+const DisplaySelector = ({ type, value, networkName }) => {
   switch (type) {
     case itemTypes.ADDRESS:
-      return <EthAddress address={value || ZERO_ADDRESS} />
+      return (
+        <EthAddress address={value || ZERO_ADDRESS} networkName={networkName} />
+      )
     case itemTypes.TEXT:
     case itemTypes.NUMBER:
       return <Typography.Text>{value || 'XYZ'}</Typography.Text>
@@ -53,7 +59,7 @@ const DisplaySelector = ({ type, value }) => {
 export default () => {
   const [parameters, setParameters] = useState()
   const [errored, setErrored] = useState()
-  const [metaEvidence, setmetaEvidence] = useState()
+  const [metaEvidence, setMetaEvidence] = useState()
   const [decodedItem, setDecodedItem] = useState()
   const [item, setItem] = useState()
 
@@ -101,17 +107,20 @@ export default () => {
   // Fetch meta evidence.
   useEffect(() => {
     if (!parameters || !archon) return
-    const {
-      arbitrableContractAddress,
-      arbitratorContractAddress,
-      disputeID
-    } = parameters(async () => {
+    ;(async () => {
+      const {
+        arbitrableContractAddress,
+        arbitratorContractAddress,
+        disputeID
+      } = parameters
+
       const disputeLog = await archon.arbitrable.getDispute(
         arbitrableContractAddress,
         arbitratorContractAddress,
         disputeID
       )
-      setmetaEvidence(
+
+      setMetaEvidence(
         await archon.arbitrable.getMetaEvidence(
           arbitrableContractAddress,
           disputeLog.metaEvidenceID
@@ -142,7 +151,7 @@ export default () => {
   // Decode item bytes once we have it and the meta evidence.
   useEffect(() => {
     if (!item || !metaEvidence) return
-    const { columns } = metaEvidence
+    const { columns } = metaEvidence.metaEvidenceJSON
     try {
       setDecodedItem({
         ...item,
@@ -154,7 +163,7 @@ export default () => {
     }
   }, [item, metaEvidence])
 
-  if (errored)
+  if (errored || (metaEvidence && !metaEvidence.fileValid))
     return (
       <Result
         status="error"
@@ -163,11 +172,12 @@ export default () => {
       />
     )
 
-  const { columns } = metaEvidence
+  const columns =
+    (metaEvidence && metaEvidence.metaEvidenceJSON.columns) || null
   const loading = !decodedItem
 
   return (
-    <Card loading={loading}>
+    <Card loading={loading} bordered={false} style={{ margin: 16 }}>
       {columns && (
         <Descriptions>
           {columns.map((column, index) => (
@@ -187,7 +197,10 @@ export default () => {
             >
               <DisplaySelector
                 type={column.type}
-                value={item && item.decodedData[index]}
+                value={decodedItem && decodedItem.decodedData[index]}
+                networkName={
+                  provider._network.name !== 'mainnet' && provider._network.name
+                }
               />
             </Descriptions.Item>
           ))}
