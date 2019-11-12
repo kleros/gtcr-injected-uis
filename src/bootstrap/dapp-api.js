@@ -5,6 +5,8 @@ const env = process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV'
 const ETHEREUM_PROVIDER = process.env[`REACT_APP_${env}_ETHEREUM_PROVIDER`]
 const IPFS_URL = process.env[`REACT_APP_IPFS_URL`]
 
+console.info(env, ETHEREUM_PROVIDER)
+
 let provider
 if (window.web3 && window.web3.currentProvider)
   provider = new ethers.providers.Web3Provider(window.web3.currentProvider)

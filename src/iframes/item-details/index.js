@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import {
-  Typography,
-  Switch,
-  Descriptions,
-  Tooltip,
-  Card,
-  Icon,
-  Result
-} from 'antd'
+import { Typography, Switch, Tooltip, Card, Icon, Result } from 'antd'
+import styled from 'styled-components/macro'
 import PropTypes from 'prop-types'
 import { abi as _gtcr } from '@kleros/tcr/build/contracts/GeneralizedTCR.json'
 import { provider, archon } from '../../bootstrap/dapp-api'
@@ -55,6 +48,18 @@ const DisplaySelector = ({ type, value, networkName }) => {
       throw new Error(`Unhandled type ${type}.`)
   }
 }
+
+const StyledFields = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`
+
+const StyledField = styled.div`
+  margin-bottom: 16px;
+  margin-right: 16px;
+  word-break: break-word;
+`
 
 export default () => {
   const [parameters, setParameters] = useState()
@@ -123,7 +128,8 @@ export default () => {
       setMetaEvidence(
         await archon.arbitrable.getMetaEvidence(
           arbitrableContractAddress,
-          disputeLog.metaEvidenceID
+          disputeLog.metaEvidenceID,
+          { fromBlock: 0 }
         )
       )
     })()
@@ -150,7 +156,7 @@ export default () => {
 
   // Decode item bytes once we have it and the meta evidence.
   useEffect(() => {
-    if (!item || !metaEvidence) return
+    if (!item || !metaEvidence || !metaEvidence.metaEvidenceJSON) return
     const { columns } = metaEvidence.metaEvidenceJSON
     try {
       setDecodedItem({
@@ -179,32 +185,26 @@ export default () => {
   return (
     <Card loading={loading} bordered={false} style={{ margin: 16 }}>
       {columns && (
-        <Descriptions>
+        <StyledFields>
           {columns.map((column, index) => (
-            <Descriptions.Item
-              key={index}
-              label={
-                <span>
-                  {column.label}
-                  {column.description && (
-                    <Tooltip title={column.description}>
-                      &nbsp;
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
-                  )}
-                </span>
-              }
-            >
+            <StyledField key={index}>
+              <span>
+                {column.label}
+                {column.description && (
+                  <Tooltip title={column.description}>
+                    &nbsp;
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
+                )}
+              </span>
+              :{' '}
               <DisplaySelector
                 type={column.type}
                 value={decodedItem && decodedItem.decodedData[index]}
-                networkName={
-                  provider._network.name !== 'mainnet' && provider._network.name
-                }
               />
-            </Descriptions.Item>
+            </StyledField>
           ))}
-        </Descriptions>
+        </StyledFields>
       )}
     </Card>
   )
