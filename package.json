@@ -1,6 +1,6 @@
 {
   "name": "gtcr-injected-uis",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Generalized TCR evidence display and various other components.",
   "main": "index.js",
   "repository": "git@github.com:kleros/gtcr-injected-uis.git",
