@@ -187,13 +187,12 @@ export default () => {
     (metaEvidence && metaEvidence.metaEvidenceJSON.columns) || null
   const loading = !decodedItem
 
-  if (loading || !itemID || !parameters)
-    return <Card loading bordered={false} style={{ margin: 16 }} />
+  if (loading || !itemID || !parameters) return <Card loading bordered />
 
   const { arbitrableContractAddress } = parameters
 
   return (
-    <Card bordered={false} style={{ margin: 16 }}>
+    <Card bordered>
       {columns && (
         <StyledFields>
           {columns.map((column, index) => (
@@ -219,6 +218,8 @@ export default () => {
       {process.env.REACT_APP_GTCR_URL && (
         <a
           href={`${process.env.REACT_APP_GTCR_URL}/tcr/${arbitrableContractAddress}/${itemID}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           View Item
         </a>
