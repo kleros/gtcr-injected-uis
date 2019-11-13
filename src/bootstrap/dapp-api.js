@@ -12,6 +12,7 @@ const useProvider = () => {
   const [archon, setArchon] = useState()
   useEffect(() => {
     ;(async () => {
+      if (provider) return
       try {
         if (window.web3 && window.web3.currentProvider && window.ethereum) {
           await window.ethereum.enable()
@@ -26,12 +27,12 @@ const useProvider = () => {
         console.error(err)
       }
     })()
-  }, [])
+  }, [provider])
 
   useEffect(() => {
-    if (!provider) return
+    if (!provider || archon) return
     setArchon(new Archon(provider._web3Provider, IPFS_URL))
-  }, [provider])
+  }, [archon, provider])
 
   return { provider, archon, error }
 }

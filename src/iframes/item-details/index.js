@@ -72,7 +72,7 @@ export default () => {
 
   // Read query parameters.
   useEffect(() => {
-    if (window.location.search[0] !== '?') return
+    if (window.location.search[0] !== '?' || parameters) return
     const message = JSON.parse(
       window.location.search
         .substring(1)
@@ -97,7 +97,7 @@ export default () => {
       disputeID,
       arbitratorContractAddress
     })
-  }, [])
+  }, [parameters])
 
   const gtcr = useMemo(() => {
     if (!parameters || !provider) return
@@ -113,7 +113,7 @@ export default () => {
 
   // Fetch meta evidence.
   useEffect(() => {
-    if (!parameters || !archon) return
+    if (!parameters || !archon || metaEvidence) return
     ;(async () => {
       const {
         arbitrableContractAddress,
@@ -127,19 +127,21 @@ export default () => {
         disputeID
       )
 
-      setMetaEvidence(
-        await archon.arbitrable.getMetaEvidence(
-          arbitrableContractAddress,
-          disputeLog.metaEvidenceID,
-          { fromBlock: 0 }
-        )
-      )
+      archon.arbitrable
+        .getMetaEvidence(arbitrableContractAddress, disputeLog.metaEvidenceID, {
+          fromBlock: 0
+        })
+        .then(m => setMetaEvidence(m))
+        .catch(err => {
+          setErrored('Error fetching meta evidence')
+          console.error(err)
+        })
     })()
-  }, [archon, parameters])
+  }, [archon, metaEvidence, parameters])
 
   // Fetch item.
   useEffect(() => {
-    if (!gtcr) return
+    if (!gtcr || itemID || item) return
     const { arbitratorContractAddress, disputeID } = parameters
     ;(async () => {
       try {
@@ -154,11 +156,12 @@ export default () => {
         setErrored(true)
       }
     })()
-  }, [gtcr, parameters])
+  }, [gtcr, item, itemID, parameters])
 
   // Decode item bytes once we have it and the meta evidence.
   useEffect(() => {
-    if (!item || !metaEvidence || !metaEvidence.metaEvidenceJSON) return
+    if (!item || !metaEvidence || !metaEvidence.metaEvidenceJSON || decodedItem)
+      return
     const { columns } = metaEvidence.metaEvidenceJSON
     try {
       setDecodedItem({
@@ -169,7 +172,7 @@ export default () => {
       console.error(err)
       setErrored(true)
     }
-  }, [item, metaEvidence])
+  }, [decodedItem, item, metaEvidence])
 
   if (errored || providerError || (metaEvidence && !metaEvidence.fileValid))
     return (
