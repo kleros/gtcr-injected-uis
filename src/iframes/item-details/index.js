@@ -3,7 +3,7 @@ import { Typography, Switch, Tooltip, Card, Icon, Result } from 'antd'
 import styled from 'styled-components/macro'
 import PropTypes from 'prop-types'
 import { abi as _gtcr } from '@kleros/tcr/build/contracts/GeneralizedTCR.json'
-import { provider, archon } from '../../bootstrap/dapp-api'
+import useProvider from '../../bootstrap/dapp-api'
 import itemTypes from '../../utils/item-types'
 import { gtcrDecode } from '../../utils/encoder'
 import { ethers } from 'ethers'
@@ -67,6 +67,8 @@ export default () => {
   const [metaEvidence, setMetaEvidence] = useState()
   const [decodedItem, setDecodedItem] = useState()
   const [item, setItem] = useState()
+  const [itemID, setItemID] = useState()
+  const { archon, provider, error: providerError } = useProvider()
 
   // Read query parameters.
   useEffect(() => {
@@ -107,7 +109,7 @@ export default () => {
       setErrored(true)
       return null
     }
-  }, [parameters])
+  }, [parameters, provider])
 
   // Fetch meta evidence.
   useEffect(() => {
@@ -133,7 +135,7 @@ export default () => {
         )
       )
     })()
-  }, [parameters])
+  }, [archon, parameters])
 
   // Fetch item.
   useEffect(() => {
@@ -145,8 +147,8 @@ export default () => {
           arbitratorContractAddress,
           disputeID
         )
-        const item = await gtcr.getItemInfo(itemID)
-        setItem(item)
+        setItemID(itemID)
+        setItem(await gtcr.getItemInfo(itemID))
       } catch (err) {
         console.error(err)
         setErrored(true)
@@ -169,7 +171,7 @@ export default () => {
     }
   }, [item, metaEvidence])
 
-  if (errored || (metaEvidence && !metaEvidence.fileValid))
+  if (errored || providerError || (metaEvidence && !metaEvidence.fileValid))
     return (
       <Result
         status="error"
@@ -182,8 +184,13 @@ export default () => {
     (metaEvidence && metaEvidence.metaEvidenceJSON.columns) || null
   const loading = !decodedItem
 
+  if (loading || !itemID || !parameters)
+    return <Card loading bordered={false} style={{ margin: 16 }} />
+
+  const { arbitrableContractAddress } = parameters
+
   return (
-    <Card loading={loading} bordered={false} style={{ margin: 16 }}>
+    <Card bordered={false} style={{ margin: 16 }}>
       {columns && (
         <StyledFields>
           {columns.map((column, index) => (
@@ -204,6 +211,13 @@ export default () => {
               />
             </StyledField>
           ))}
+          {process.env.REACT_APP_GTCR_URL && (
+            <a
+              href={`${process.env.REACT_APP_GTCR_URL}/tcr/${arbitrableContractAddress}/${itemID}`}
+            >
+              View Item
+            </a>
+          )}
         </StyledFields>
       )}
     </Card>
