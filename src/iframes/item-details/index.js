@@ -211,14 +211,14 @@ export default () => {
               />
             </StyledField>
           ))}
-          {process.env.REACT_APP_GTCR_URL && (
-            <a
-              href={`${process.env.REACT_APP_GTCR_URL}/tcr/${arbitrableContractAddress}/${itemID}`}
-            >
-              View Item
-            </a>
-          )}
         </StyledFields>
+      )}
+      {process.env.REACT_APP_GTCR_URL && (
+        <a
+          href={`${process.env.REACT_APP_GTCR_URL}/tcr/${arbitrableContractAddress}/${itemID}`}
+        >
+          View Item
+        </a>
       )}
     </Card>
   )
