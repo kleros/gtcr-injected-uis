@@ -106,38 +106,31 @@ export default () => {
       return new ethers.Contract(arbitrableContractAddress, _gtcr, provider)
     } catch (err) {
       console.error('Error instantiating gtcr contract', err)
-      setErrored(true)
+      setErrored(err)
       return null
     }
   }, [parameters, provider])
 
   // Fetch meta evidence.
   useEffect(() => {
-    if (!parameters || !archon || metaEvidence) return
+    if (!parameters || !archon || metaEvidence || !gtcr) return
     ;(async () => {
-      const {
-        arbitrableContractAddress,
-        arbitratorContractAddress,
-        disputeID
-      } = parameters
-
-      const disputeLog = await archon.arbitrable.getDispute(
-        arbitrableContractAddress,
-        arbitratorContractAddress,
-        disputeID
-      )
-
-      archon.arbitrable
-        .getMetaEvidence(arbitrableContractAddress, disputeLog.metaEvidenceID, {
+      try {
+        const { _evidence: metaEvidencePath } = (await provider.getLogs({
+          ...gtcr.filters.MetaEvidence(),
           fromBlock: 0
-        })
-        .then(m => setMetaEvidence(m))
-        .catch(err => {
-          setErrored('Error fetching meta evidence')
-          console.error(err)
-        })
+        })).map(log => gtcr.interface.parseLog(log))[0].values
+        const file = await (await fetch(
+          process.env.REACT_APP_IPFS_GATEWAY + metaEvidencePath
+        )).json()
+
+        setMetaEvidence(file)
+      } catch (err) {
+        console.error('Error fetching dispute information', err)
+        setErrored(err)
+      }
     })()
-  }, [archon, metaEvidence, parameters])
+  }, [archon, gtcr, metaEvidence, parameters, provider])
 
   // Fetch item.
   useEffect(() => {
@@ -153,16 +146,15 @@ export default () => {
         setItem(await gtcr.getItemInfo(itemID))
       } catch (err) {
         console.error(err)
-        setErrored(true)
+        setErrored(err)
       }
     })()
   }, [gtcr, item, itemID, parameters])
 
-  // Decode item bytes once we have it and the meta evidence.
+  // Decode item bytes once we have it and tfhe meta evidence.
   useEffect(() => {
-    if (!item || !metaEvidence || !metaEvidence.metaEvidenceJSON || decodedItem)
-      return
-    const { columns } = metaEvidence.metaEvidenceJSON
+    if (!item || !metaEvidence || decodedItem) return
+    const { columns } = metaEvidence.metadata
     try {
       setDecodedItem({
         ...item,
@@ -170,21 +162,20 @@ export default () => {
       })
     } catch (err) {
       console.error(err)
-      setErrored(true)
+      setErrored(err)
     }
   }, [decodedItem, item, metaEvidence])
 
-  if (errored || providerError || (metaEvidence && !metaEvidence.fileValid))
+  if (errored || providerError)
     return (
       <Result
         status="error"
-        title="Error fetching item."
-        subTitle="Are you on the correct network?"
+        title="Error fetching item. Are you on the correct network?"
+        subTitle={errored.message}
       />
     )
 
-  const columns =
-    (metaEvidence && metaEvidence.metaEvidenceJSON.columns) || null
+  const columns = (metaEvidence && metaEvidence.metadata.columns) || null
   const loading = !decodedItem
 
   if (loading || !itemID || !parameters) return <Card loading bordered />

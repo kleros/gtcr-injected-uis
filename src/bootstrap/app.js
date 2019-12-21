@@ -7,7 +7,7 @@ import './styles.css'
 const App = () => (
   <>
     <Helmet>
-      <title>Kleros - GTCR</title>
+      <title>Kleros - GTCR Injected Displays</title>
     </Helmet>
     <ItemDetails />
   </>

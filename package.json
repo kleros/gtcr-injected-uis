@@ -11,11 +11,13 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "release": "standard-version",
-    "lint": "eslint './src/**/*.js'"
+    "lint:eslint:fix": "eslint './src/**/*.js' --fix",
+    "lint:prettier:fix": "prettier --write ''./src/**/*.js''",
+    "format": "yarn run lint:eslint:fix && yarn run lint:prettier:fix"
   },
   "dependencies": {
     "@kleros/archon": "^0.10.1",
-    "@kleros/tcr": "^0.1.18",
+    "@kleros/tcr": "^0.1.28",
     "@loadable/component": "^5.10.1",
     "antd": "^3.20.1",
     "bn.js": "^5.0.0",
@@ -71,7 +73,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint",
+      "pre-commit": "yarn format",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
