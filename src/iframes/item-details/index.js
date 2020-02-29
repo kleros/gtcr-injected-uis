@@ -1,58 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Typography, Switch, Tooltip, Card, Icon, Result } from 'antd'
+import { Tooltip, Card, Icon, Result } from 'antd'
 import styled from 'styled-components/macro'
-import PropTypes from 'prop-types'
+import { ethers } from 'ethers'
 import { abi as _gtcr } from '@kleros/tcr/build/contracts/GeneralizedTCR.json'
 import useProvider from '../../bootstrap/dapp-api'
-import itemTypes from '../../utils/item-types'
 import { gtcrDecode } from '../../utils/encoder'
-import { ethers } from 'ethers'
-
-export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-export const ZERO_BYTES32 =
-  '0x0000000000000000000000000000000000000000000000000000000000000000'
-
-const EthAddress = ({ address, networkName }) => (
-  <a
-    href={`https://${networkName}etherscan.io/address/${address}`}
-    rel="noopener noreferrer"
-    target="_blank"
-  >
-    {address.slice(0, 6)}...{address.slice(address.length - 4)}
-  </a>
-)
-
-EthAddress.propTypes = {
-  address: PropTypes.string.isRequired,
-  networkName: PropTypes.string
-}
-
-EthAddress.defaultProps = {
-  networkName: ''
-}
-
-const DisplaySelector = ({ type, value, networkName }) => {
-  switch (type) {
-    case itemTypes.ADDRESS:
-      return (
-        <EthAddress address={value || ZERO_ADDRESS} networkName={networkName} />
-      )
-    case itemTypes.TEXT:
-    case itemTypes.NUMBER:
-      return <Typography.Text>{value || 'XYZ'}</Typography.Text>
-    case itemTypes.BOOLEAN:
-      return <Switch disabled checked={value} />
-    case itemTypes.LONGTEXT:
-      return <Typography.Paragraph>{value}</Typography.Paragraph>
-    default:
-      throw new Error(`Unhandled type ${type}.`)
-  }
-}
+import DisplaySelector from '../../components/display-selector'
 
 const StyledFields = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  align-items: center;
 `
 
 const StyledField = styled.div`
