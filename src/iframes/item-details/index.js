@@ -88,10 +88,10 @@ export default () => {
 
         setMetaEvidence(file)
       } catch (err) {
-        console.error('Error fetching dispute information', err)
+        console.error('Error meta evidence information', err)
         setErrored({
           title:
-            'Error fetching dispute information. Are you in the correct network?',
+            'Error meta evidence information. Are you in the correct network?',
           subTitle: err.message
         })
       }
@@ -123,7 +123,8 @@ export default () => {
   // Decode item bytes once we have it and tfhe meta evidence.
   useEffect(() => {
     if (!item || !metaEvidence || decodedItem) return
-    const { columns } = metaEvidence.metadata
+    const { metadata } = metaEvidence
+    const { columns } = metadata || {}
     try {
       setDecodedItem({
         ...item,
@@ -170,6 +171,7 @@ export default () => {
               <DisplaySelector
                 type={column.type}
                 value={decodedItem && decodedItem.decodedData[index]}
+                provider={provider}
               />
             </StyledField>
           ))}

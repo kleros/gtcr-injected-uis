@@ -14,10 +14,10 @@ const StyledImage = styled.img`
   padding: 5px;
 `
 
-const DisplaySelector = ({ type, value }) => {
+const DisplaySelector = ({ type, value, provider }) => {
   switch (type) {
     case itemTypes.GTCR_ADDRESS:
-      return <GTCRAddress address={value || ZERO_ADDRESS} />
+      return <GTCRAddress address={value || ZERO_ADDRESS} provider={provider} />
     case itemTypes.ADDRESS:
       return <ETHAddress address={value || ZERO_ADDRESS} />
     case itemTypes.TEXT:
@@ -29,10 +29,16 @@ const DisplaySelector = ({ type, value }) => {
       return <Typography.Paragraph>{value}</Typography.Paragraph>
     case itemTypes.IMAGE:
       return value ? (
-        <StyledImage
-          src={`${process.env.REACT_APP_IPFS_GATEWAY}${value}`}
-          alt="item"
-        />
+        <a
+          href={`${process.env.REACT_APP_IPFS_GATEWAY}${value}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <StyledImage
+            src={`${process.env.REACT_APP_IPFS_GATEWAY}${value}`}
+            alt="item"
+          />
+        </a>
       ) : (
         <Avatar shape="square" size="large" icon="file-image" />
       )
@@ -52,7 +58,10 @@ DisplaySelector.propTypes = {
     PropTypes.number,
     PropTypes.bool,
     PropTypes.object
-  ]).isRequired
+  ]).isRequired,
+  // eslint-disable-next-line react/require-default-props
+  // eslint-disable-next-line react/forbid-prop-types
+  provider: PropTypes.object.isRequired
 }
 
 export default DisplaySelector
