@@ -1,5 +1,5 @@
 import React from 'react'
-import { Typography, Switch, Avatar, Skeleton } from 'antd'
+import { Typography, Avatar, Checkbox } from 'antd'
 import styled from 'styled-components/macro'
 import PropTypes from 'prop-types'
 import itemTypes from '../utils/item-types'
@@ -14,15 +14,6 @@ const StyledImage = styled.img`
   padding: 5px;
 `
 
-const SkeletonTitleProps = { width: '150px' }
-const StyledSkeleton = styled(Skeleton)`
-  display: inline;
-
-  .ant-skeleton-title {
-    margin: -3px 0;
-  }
-`
-
 const DisplaySelector = ({ type, value }) => {
   switch (type) {
     case itemTypes.GTCR_ADDRESS:
@@ -31,15 +22,9 @@ const DisplaySelector = ({ type, value }) => {
       return <ETHAddress address={value || ZERO_ADDRESS} />
     case itemTypes.TEXT:
     case itemTypes.NUMBER:
-      return (
-        <Typography.Text>
-          {value || (
-            <StyledSkeleton paragraph={false} title={SkeletonTitleProps} />
-          )}
-        </Typography.Text>
-      )
+      return <Typography.Text>{value}</Typography.Text>
     case itemTypes.BOOLEAN:
-      return <Switch disabled checked={value} />
+      return <Checkbox checked={value} disabled />
     case itemTypes.LONGTEXT:
       return <Typography.Paragraph>{value}</Typography.Paragraph>
     case itemTypes.IMAGE:
@@ -61,7 +46,7 @@ const DisplaySelector = ({ type, value }) => {
 }
 
 DisplaySelector.propTypes = {
-  type: PropTypes.oneOf(Object.keys(itemTypes)).isRequired,
+  type: PropTypes.oneOf(Object.values(itemTypes)).isRequired,
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
