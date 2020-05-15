@@ -16,7 +16,7 @@
     "format": "yarn run lint:eslint:fix && yarn run lint:prettier:fix"
   },
   "dependencies": {
-    "@kleros/tcr": "^0.1.28",
+    "@kleros/tcr": "^1.9.0-alpha.0",
     "@loadable/component": "^5.10.1",
     "antd": "^3.20.1",
     "bn.js": "^5.0.0",

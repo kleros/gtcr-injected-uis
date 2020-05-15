@@ -1443,10 +1443,10 @@
   resolved "https://registry.yarnpkg.com/@kleros/ethereum-libraries/-/ethereum-libraries-1.1.0.tgz#09ed2c9f7f523aeb2d185c74b0a4093eec1204b1"
   integrity sha512-tgefywe7llnhr2JG07PcSbupq7a+cRdT+QL5TAXOF1yaN/EXIxYuXT3g4bdQD3TS5NSC7y2/gBs9qJ4Wy3khFw==
 
-"@kleros/tcr@^0.1.28":
-  version "0.1.31"
-  resolved "https://registry.yarnpkg.com/@kleros/tcr/-/tcr-0.1.31.tgz#d0d25f54107bb8eb0c1a5f3a135af87d542ade86"
-  integrity sha512-DO2lVsS1sEAZVsUpSpfwyVlu1Cy6u3SNrVUs8IkKq11n3DJ/kaOX2BvLTACgosQP32nIC5lJw0gSDRPMV0yC/g==
+"@kleros/tcr@^1.9.0-alpha.0":
+  version "1.9.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@kleros/tcr/-/tcr-1.9.0-alpha.0.tgz#6778d76c925c18de78124f717498d6a3039e6cc8"
+  integrity sha512-YyIwq/+zaJ8fJJ2080z/GHGt9P6X+dUCA4HlC2AOUW7UJqgAn1DV9c8zHDq4b5uHKC2vY/AuirN7bs2lPVSk9A==
   dependencies:
     "@kleros/erc-792" "^3.0.0"
     "@kleros/ethereum-libraries" "^1.0.0"
