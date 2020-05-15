@@ -27,7 +27,7 @@ export default () => {
   const [decodedItem, setDecodedItem] = useState()
   const [item, setItem] = useState()
   const [itemID, setItemID] = useState()
-  const { archon, provider, error: providerError } = useProvider()
+  const { provider, error: providerError } = useProvider()
 
   // Read query parameters.
   useEffect(() => {
@@ -72,7 +72,7 @@ export default () => {
 
   // Fetch meta evidence.
   useEffect(() => {
-    if (!parameters || !archon || metaEvidence || !gtcr) return
+    if (!parameters || metaEvidence || !gtcr) return
     ;(async () => {
       try {
         const { _evidence: metaEvidencePath } = (await provider.getLogs({
@@ -89,7 +89,7 @@ export default () => {
         setErrored(err)
       }
     })()
-  }, [archon, gtcr, metaEvidence, parameters, provider])
+  }, [gtcr, metaEvidence, parameters, provider])
 
   // Fetch item.
   useEffect(() => {
