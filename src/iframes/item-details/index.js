@@ -64,8 +64,11 @@ export default () => {
     try {
       return new ethers.Contract(arbitrableContractAddress, _gtcr, provider)
     } catch (err) {
-      console.error('Error instantiating gtcr contract', err)
-      setErrored(err)
+      console.error(`Error instantiating gtcr contract`, err)
+      setErrored({
+        title: 'Error loading item. Are you in the correct network?',
+        subTitle: err.message
+      })
       return null
     }
   }, [parameters, provider])
@@ -75,18 +78,24 @@ export default () => {
     if (!parameters || metaEvidence || !gtcr) return
     ;(async () => {
       try {
-        const { _evidence: metaEvidencePath } = (await provider.getLogs({
-          ...gtcr.filters.MetaEvidence(),
-          fromBlock: 0
-        })).map(log => gtcr.interface.parseLog(log))[0].values
-        const file = await (await fetch(
-          process.env.REACT_APP_IPFS_GATEWAY + metaEvidencePath
-        )).json()
+        const { _evidence: metaEvidencePath } = (
+          await provider.getLogs({
+            ...gtcr.filters.MetaEvidence(),
+            fromBlock: 0
+          })
+        ).map(log => gtcr.interface.parseLog(log))[0].values
+        const file = await (
+          await fetch(process.env.REACT_APP_IPFS_GATEWAY + metaEvidencePath)
+        ).json()
 
         setMetaEvidence(file)
       } catch (err) {
         console.error('Error fetching dispute information', err)
-        setErrored(err)
+        setErrored({
+          title:
+            'Error fetching dispute information. Are you in the correct network?',
+          subTitle: err.message
+        })
       }
     })()
   }, [gtcr, metaEvidence, parameters, provider])
@@ -104,8 +113,11 @@ export default () => {
         setItemID(itemID)
         setItem(await gtcr.getItemInfo(itemID))
       } catch (err) {
-        console.error(err)
-        setErrored(err)
+        console.error('Error fetching item', err)
+        setErrored({
+          title: 'Error fetching item. Are you in the correct network?',
+          subTitle: err.message
+        })
       }
     })()
   }, [gtcr, item, itemID, parameters])
@@ -121,20 +133,20 @@ export default () => {
       })
     } catch (err) {
       console.error(err)
-      setErrored(err)
+      setErrored({
+        title: 'Error decoding item.',
+        subTitle: err.message
+      })
     }
   }, [decodedItem, item, metaEvidence])
 
   if (errored || providerError)
     return (
-      <Result
-        status="error"
-        title="Error fetching item. Are you on the correct network?"
-        subTitle={errored.message}
-      />
+      <Result status="warn" title={errored.title} subTitle={errored.subTitle} />
     )
 
-  const columns = (metaEvidence && metaEvidence.metadata.columns) || null
+  const { metadata } = metaEvidence || {}
+  const { columns } = metadata || {}
   const loading = !decodedItem
 
   if (loading || !itemID || !parameters) return <Card loading bordered />
@@ -171,7 +183,7 @@ export default () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          View Item
+          View Submission
         </a>
       )}
     </Card>
