@@ -49,13 +49,15 @@ const GTCRAddress = ({ address, provider }) => {
     if (!address || metaEvidence || !gtcr) return
     ;(async () => {
       try {
-        const { _evidence: metaEvidencePath } = (await provider.getLogs({
-          ...gtcr.filters.MetaEvidence(),
-          fromBlock: 0
-        })).map(log => gtcr.interface.parseLog(log))[0].values
-        const file = await (await fetch(
-          process.env.REACT_APP_IPFS_GATEWAY + metaEvidencePath
-        )).json()
+        const { _evidence: metaEvidencePath } = (
+          await provider.getLogs({
+            ...gtcr.filters.MetaEvidence(),
+            fromBlock: 0
+          })
+        ).map(log => gtcr.interface.parseLog(log))[0].values
+        const file = await (
+          await fetch(process.env.REACT_APP_IPFS_GATEWAY + metaEvidencePath)
+        ).json()
 
         setMetaEvidence(file)
       } catch (err) {

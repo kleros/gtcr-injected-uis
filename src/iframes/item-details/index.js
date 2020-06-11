@@ -24,6 +24,7 @@ export default () => {
   const [parameters, setParameters] = useState()
   const [errored, setErrored] = useState()
   const [metaEvidence, setMetaEvidence] = useState()
+  const [metaEvidenceLogs, setMetaEvidenceLogs] = useState()
   const [decodedItem, setDecodedItem] = useState()
   const [item, setItem] = useState()
   const [itemID, setItemID] = useState()
@@ -73,34 +74,33 @@ export default () => {
     }
   }, [parameters, provider])
 
-  // Fetch meta evidence.
+  // Fetch meta evidence logs.
   useEffect(() => {
-    if (!parameters || metaEvidence || !gtcr) return
+    if (!parameters || metaEvidenceLogs || !gtcr) return
     ;(async () => {
       try {
-        const { _evidence: metaEvidencePath } = (await provider.getLogs({
-          ...gtcr.filters.MetaEvidence(),
-          fromBlock: 0
-        })).map(log => gtcr.interface.parseLog(log))[0].values
-        const file = await (await fetch(
-          process.env.REACT_APP_IPFS_GATEWAY + metaEvidencePath
-        )).json()
-
-        setMetaEvidence(file)
+        setMetaEvidenceLogs(
+          (
+            await provider.getLogs({
+              ...gtcr.filters.MetaEvidence(),
+              fromBlock: 0
+            })
+          ).map(log => gtcr.interface.parseLog(log))
+        )
       } catch (err) {
-        console.error('Error meta evidence information', err)
+        console.error('Error fetching meta evidence logs', err)
         setErrored({
           title:
-            'Error meta evidence information. Are you in the correct network?',
+            'Error fetching meta evidence logs. Are you in the correct network?',
           subTitle: err.message
         })
       }
     })()
-  }, [gtcr, metaEvidence, parameters, provider])
+  }, [gtcr, metaEvidenceLogs, parameters, provider])
 
   // Fetch item.
   useEffect(() => {
-    if (!gtcr || itemID || item) return
+    if (!gtcr || itemID || item || !parameters) return
     const { arbitratorContractAddress, disputeID } = parameters
     ;(async () => {
       try {
@@ -119,6 +119,44 @@ export default () => {
       }
     })()
   }, [gtcr, item, itemID, parameters])
+
+  // Detect which meta evidence is used in this request and fetch.
+  useEffect(() => {
+    if (!item || !parameters || !itemID || !metaEvidenceLogs) return
+    ;(async () => {
+      try {
+        // Create an array of numbers from 0 to numberOfRequests - 1.
+        const requestIDs = [...new Array(Number(item.numberOfRequests)).keys()]
+        const requests = await Promise.all(
+          requestIDs.map(async requestID =>
+            gtcr.getRequestInfo(itemID, requestID)
+          )
+        )
+
+        const { disputeID } = parameters
+        const metaEvidenceID = requests
+          .filter(
+            request => request.disputeID.toString() === disputeID.toString()
+          )[0]
+          .metaEvidenceID.toNumber()
+
+        const { _evidence: metaEvidencePath } = metaEvidenceLogs[
+          metaEvidenceID
+        ].values
+        const file = await (
+          await fetch(process.env.REACT_APP_IPFS_GATEWAY + metaEvidencePath)
+        ).json()
+        setMetaEvidence(file)
+      } catch (err) {
+        console.error(err)
+        setErrored({
+          title:
+            'Error fetching meta evidence for request. Are you in the correct network?',
+          subTitle: err.message
+        })
+      }
+    })()
+  }, [gtcr, item, itemID, metaEvidenceLogs, parameters])
 
   // Decode item bytes once we have it and tfhe meta evidence.
   useEffect(() => {
