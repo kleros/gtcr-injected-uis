@@ -34,6 +34,7 @@ const DisplaySelector = ({
     case itemTypes.LONGTEXT:
       return <Typography.Paragraph>{value}</Typography.Paragraph>
     case itemTypes.FILE: {
+      if (!value) return ''
       if (!allowedFileTypes) return 'No allowed file types specified'
 
       const allowedFileTypesArr = allowedFileTypes.split(' ')
