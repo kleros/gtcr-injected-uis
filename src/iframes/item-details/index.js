@@ -209,6 +209,7 @@ export default () => {
               <DisplaySelector
                 type={column.type}
                 value={decodedItem && decodedItem.decodedData[index]}
+                allowedFileTypes={column.allowedFileTypes}
                 provider={provider}
               />
             </StyledField>
