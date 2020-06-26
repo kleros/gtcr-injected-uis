@@ -67,6 +67,12 @@ const DisplaySelector = ({
       ) : (
         <Avatar shape="square" size="large" icon="file-image" />
       )
+    case itemTypes.LINK:
+      return (
+        <a href={value}>
+          <Typography.Text>{value}</Typography.Text>
+        </a>
+      )
     default:
       return (
         <Typography.Paragraph>
