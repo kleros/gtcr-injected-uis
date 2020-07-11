@@ -1,5 +1,5 @@
 <p align="center">
-  <b style="font-size: 32px;">GTCR Injected UIs</b>
+  <b style="font-size: 32px;">Curate Injected UIs</b>
 </p>
 
 <p align="center">

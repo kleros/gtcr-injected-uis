@@ -2,8 +2,7 @@ import React from 'react'
 import { Typography, Avatar, Checkbox } from 'antd'
 import styled from 'styled-components/macro'
 import PropTypes from 'prop-types'
-import itemTypes from '../utils/item-types'
-import { ZERO_ADDRESS } from '../utils/string'
+import { ItemTypes, ZERO_ADDRESS } from '@kleros/gtcr-encoder'
 import GTCRAddress from './gtcr-address'
 import ETHAddress from './eth-address'
 
@@ -22,18 +21,18 @@ const DisplaySelector = ({
   allowedFileTypes
 }) => {
   switch (type) {
-    case itemTypes.GTCR_ADDRESS:
+    case ItemTypes.GTCR_ADDRESS:
       return <GTCRAddress address={value || ZERO_ADDRESS} provider={provider} />
-    case itemTypes.ADDRESS:
+    case ItemTypes.ADDRESS:
       return <ETHAddress address={value || ZERO_ADDRESS} />
-    case itemTypes.TEXT:
-    case itemTypes.NUMBER:
+    case ItemTypes.TEXT:
+    case ItemTypes.NUMBER:
       return <Typography.Text>{value}</Typography.Text>
-    case itemTypes.BOOLEAN:
+    case ItemTypes.BOOLEAN:
       return <Checkbox checked={value} disabled />
-    case itemTypes.LONGTEXT:
+    case ItemTypes.LONGTEXT:
       return <Typography.Paragraph>{value}</Typography.Paragraph>
-    case itemTypes.FILE: {
+    case ItemTypes.FILE: {
       if (!value) return ''
       if (!allowedFileTypes) return 'No allowed file types specified'
 
@@ -49,7 +48,7 @@ const DisplaySelector = ({
         <a href={`${process.env.REACT_APP_IPFS_GATEWAY}${value || ''}`}>Link</a>
       )
     }
-    case itemTypes.IMAGE:
+    case ItemTypes.IMAGE:
       return value ? (
         linkImage ? (
           <a href={`${process.env.REACT_APP_IPFS_GATEWAY}${value}`}>
@@ -67,7 +66,7 @@ const DisplaySelector = ({
       ) : (
         <Avatar shape="square" size="large" icon="file-image" />
       )
-    case itemTypes.LINK:
+    case ItemTypes.LINK:
       return (
         <a href={value}>
           <Typography.Text>{value}</Typography.Text>
@@ -83,7 +82,7 @@ const DisplaySelector = ({
 }
 
 DisplaySelector.propTypes = {
-  type: PropTypes.oneOf(Object.values(itemTypes)).isRequired,
+  type: PropTypes.oneOf(Object.values(ItemTypes)).isRequired,
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,

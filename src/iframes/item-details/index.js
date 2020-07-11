@@ -4,7 +4,7 @@ import styled from 'styled-components/macro'
 import { ethers } from 'ethers'
 import { abi as _gtcr } from '@kleros/tcr/build/contracts/GeneralizedTCR.json'
 import useProvider from '../../bootstrap/dapp-api'
-import { gtcrDecode } from '../../utils/encoder'
+import { gtcrDecode } from '@kleros/gtcr-encoder'
 import DisplaySelector from '../../components/display-selector'
 
 const StyledFields = styled.div`
