@@ -45,13 +45,23 @@ const DisplaySelector = ({
         return 'Forbidden file type'
 
       return (
-        <a href={`${process.env.REACT_APP_IPFS_GATEWAY}${value || ''}`}>Link</a>
+        <a
+          href={`${process.env.REACT_APP_IPFS_GATEWAY}${value || ''}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Link
+        </a>
       )
     }
     case ItemTypes.IMAGE:
       return value ? (
         linkImage ? (
-          <a href={`${process.env.REACT_APP_IPFS_GATEWAY}${value}`}>
+          <a
+            href={`${process.env.REACT_APP_IPFS_GATEWAY}${value}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <StyledImage
               src={`${process.env.REACT_APP_IPFS_GATEWAY}${value}`}
               alt="item"
@@ -68,7 +78,7 @@ const DisplaySelector = ({
       )
     case ItemTypes.LINK:
       return (
-        <a href={value}>
+        <a href={value} target="_blank" rel="noopener noreferrer">
           <Typography.Text>{value}</Typography.Text>
         </a>
       )
