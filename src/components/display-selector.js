@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import { ItemTypes, ZERO_ADDRESS } from '@kleros/gtcr-encoder'
 import GTCRAddress from './gtcr-address'
 import ETHAddress from './eth-address'
+import TwitterUser from './twitter-user'
 
 const StyledImage = styled.img`
   object-fit: contain;
@@ -82,6 +83,8 @@ const DisplaySelector = ({
           <Typography.Text>{value}</Typography.Text>
         </a>
       )
+    case ItemTypes.TWITTER_USER_ID:
+      return <TwitterUser userID={value} />
     default:
       return (
         <Typography.Paragraph>
