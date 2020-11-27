@@ -1798,7 +1798,7 @@
   resolved "https://registry.yarnpkg.com/@kleros/ethereum-libraries/-/ethereum-libraries-1.1.0.tgz#09ed2c9f7f523aeb2d185c74b0a4093eec1204b1"
   integrity sha512-tgefywe7llnhr2JG07PcSbupq7a+cRdT+QL5TAXOF1yaN/EXIxYuXT3g4bdQD3TS5NSC7y2/gBs9qJ4Wy3khFw==
 
-"@kleros/gtcr-encoder@^1.1.3":
+"@kleros/gtcr-encoder@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@kleros/gtcr-encoder/-/gtcr-encoder-1.2.1.tgz#36bb9e8750247ad3e620394005b5e1485f12c4e2"
   integrity sha512-2ub2X8f8+RgmZcZCJzfqTEd1ZC6T/Nwss8jNWaIsiBzastpYV4sby+BX5va/UQzy67SHYMJCoUnwNbslc10Fbw==

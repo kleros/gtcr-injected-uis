@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import { Result, Skeleton } from 'antd'
-import Avatar from 'antd/lib/avatar/avatar'
-import Meta from 'antd/lib/card/Meta'
+import { Alert, Avatar, Skeleton } from 'antd'
 import PropTypes from 'prop-types'
 import styled from 'styled-components/macro'
+import Meta from 'antd/lib/card/Meta'
 
 const CORSProxyURL = process.env.REACT_APP_CORS_PROXY_URL
 const authToken = `Bearer ${process.env.REACT_APP_BEARER_TOKEN}`
 
 const StyledMeta = styled(Meta)`
-  margin: 0;
+  margin: 12px 0;
   display: flex;
+  text-align: start;
   align-items: center;
+  & > .ant-card-meta-detail > .ant-card-meta-title {
+    color: #4d00b4;
+  }
+`
+
+const StyledSkeleton = styled(Skeleton)`
+  min-width: 170px;
 `
 
 const TwitterUser = ({ userID }) => {
@@ -36,25 +43,16 @@ const TwitterUser = ({ userID }) => {
     })()
   }, [userID])
 
-  if (!userID)
-    return (
-      <Result
-        status="warning"
-        title={`Invalid user ID ${userID}`}
-        subTitle={`Expected parameters format: /index.html?{"userID":"123456"}`}
-      />
-    )
-
-  if (!user) return <Skeleton loading active />
+  if (!user) return <StyledSkeleton loading active />
 
   const { data, error } = user || {}
 
   if (error)
     return (
-      <Result
-        status="warning"
-        title={`Error fetching user for id ${userID}`}
-        subTitle={error}
+      <Alert
+        type="warning"
+        message={`Error fetching user for id ${userID}`}
+        description={error}
       />
     )
 
@@ -66,7 +64,7 @@ const TwitterUser = ({ userID }) => {
       title={name}
       description={
         <>
-          <a alt="twitter-username" href={`twitter.com/${username}`}>
+          <a alt="twitter-username" href={`https://twitter.com/${username}`}>
             @{username}
           </a>
           - {id}
@@ -77,11 +75,11 @@ const TwitterUser = ({ userID }) => {
 }
 
 TwitterUser.propTypes = {
-  userID: PropTypes.number
+  userID: PropTypes.string
 }
 
 TwitterUser.defaultProps = {
-  userID: null
+  userID: ''
 }
 
 export default TwitterUser
