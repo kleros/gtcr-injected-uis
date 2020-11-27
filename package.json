@@ -16,6 +16,7 @@
     "format": "yarn run lint:eslint:fix && yarn run lint:prettier:fix"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.3.0",
     "@kleros/gtcr-encoder": "^1.2.1",
     "@kleros/tcr": "^1.9.0-alpha.0",
     "@loadable/component": "^5.10.1",

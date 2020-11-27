@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Tooltip, Card, Icon, Result } from 'antd'
+import { Tooltip, Card, Result } from 'antd'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 import styled from 'styled-components/macro'
 import { ethers } from 'ethers'
 import { abi as _gtcr } from '@kleros/tcr/build/contracts/GeneralizedTCR.json'
@@ -164,9 +165,10 @@ export default () => {
     const { metadata } = metaEvidence
     const { columns } = metadata || {}
     try {
+      const decodedData = gtcrDecode({ columns, values: item.data })
       setDecodedItem({
         ...item,
-        decodedData: gtcrDecode({ columns, values: item.data })
+        decodedData
       })
     } catch (err) {
       console.error(err)
@@ -201,7 +203,7 @@ export default () => {
                 {column.description && (
                   <Tooltip title={column.description}>
                     &nbsp;
-                    <Icon type="question-circle-o" />
+                    <QuestionCircleOutlined />
                   </Tooltip>
                 )}
               </span>
