@@ -17,18 +17,20 @@ Service and database for handling Generalized TCR contract events.
 2.  Duplicate `.env.example`, rename it to `.env` and fill in the environment variables.
 3.  Run `yarn` to install dependencies and then `yarn start` to run the UI in development mode.
 
-Remeber to provide dispute data on the URL. It should be a JSON object containing the arbitrator and arbitrable addresses, as well as the disputeID as follows:
+Remeber to provide dispute data on the URL. It should be a JSON object containing the arbitrator and arbitrable addresses, the disputeID, RPC endpoint and chainID as follows:
 
 ```
-?{"arbitrableContractAddress":"0xdeadbeef...","arbitratorContractAddress":"0xdeadbeef...","disputeID":"111"}
+?{"arbitrableContractAddress":"0xdeadbeef...","arbitratorContractAddress":"0xdeadbeef...","disputeID":"111","jsonRpcUrl":"http://localhost:8545","chainId":"1"}
 ```
 
-Which URL encoded and concatenated with the site's path would look something like:
+## Classic or Light
 
-`http://localhost:3000?%7B%22arbitrableContractAddress%22%3A%220xdeadbeef%22%2C%22arbitratorContractAddress%22%3A%220xdeadbeeff%22%2C%22disputeID%22%3A%22111%22%7D`
+This codebase has two different iframes: one for classic curate (iframes/item-details) and one for light curate (iframes/light-item-details). You must pick one to build your evidence display.
+
+You can do so by changing the component inside bootstrap/app.jss
 
 ## Other Scripts
 
 - `yarn format` - Lint, fix and prettify all the project.
-.js files with styled components and .js files.
+  .js files with styled components and .js files.
 - `yarn run cz` - Run commitizen.
