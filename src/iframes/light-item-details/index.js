@@ -76,7 +76,6 @@ export default () => {
           arbitratorContractAddress,
           disputeID
         )
-        console.info('itemID', itemID)
         setItemID(itemID)
       } catch (err) {
         console.error('Error fetching item', err)

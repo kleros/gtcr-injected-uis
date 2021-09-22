@@ -23,11 +23,15 @@ Remeber to provide dispute data on the URL. It should be a JSON object containin
 ?{"arbitrableContractAddress":"0xdeadbeef...","arbitratorContractAddress":"0xdeadbeef...","disputeID":"111","jsonRpcUrl":"http://localhost:8545","chainId":"1"}
 ```
 
-## Classic or Light
+### Classic or Light
 
 This codebase has two different iframes: one for classic curate (iframes/item-details) and one for light curate (iframes/light-item-details). You must pick one to build your evidence display.
 
 You can do so by changing the component inside bootstrap/app.jss
+
+### Fallback Provider
+
+Keep in mind that the hardcoded, fallback provider has a specific chainId. Remember to update it if you are building for a specific chain.
 
 ## Other Scripts
 
