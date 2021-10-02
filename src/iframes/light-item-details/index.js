@@ -30,8 +30,8 @@ export default () => {
       disputeID,
       arbitrableContractAddress,
       arbitratorContractAddress,
-      jsonRpcUrl,
-      chainId
+      arbitrableChainID,
+      arbitrableJsonRpcUrl
     } = message
 
     if (!arbitrableContractAddress || !disputeID || !arbitratorContractAddress)
@@ -39,23 +39,39 @@ export default () => {
 
     setParameters({
       arbitrableContractAddress,
-      disputeID,
       arbitratorContractAddress,
-      jsonRpcUrl,
-      chainId
+      disputeID,
+      arbitrableChainID,
+      arbitrableJsonRpcUrl
     })
   }, [parameters])
 
-  const gtcr = useMemo(() => {
+  const arbitrableSigner = useMemo(() => {
     if (!parameters) return
-    const { arbitrableContractAddress, jsonRpcUrl } = parameters
-    if (!jsonRpcUrl && !fallbackProvider) return
+
+    const { arbitrableJsonRpcUrl } = parameters
+    if (!arbitrableJsonRpcUrl && !fallbackProvider) return
 
     let provider = fallbackProvider
-    if (jsonRpcUrl) provider = new ethers.providers.JsonRpcProvider(jsonRpcUrl)
+    if (arbitrableJsonRpcUrl)
+      provider = new ethers.providers.JsonRpcProvider(arbitrableJsonRpcUrl)
+
+    // Using a random signer because provider does not have getChainId for
+    // whatever reason.
+    return new ethers.Wallet('0x123123123123123123123132123123', provider)
+  }, [fallbackProvider, parameters])
+
+  const gtcr = useMemo(() => {
+    if (!parameters) return
+    if (!arbitrableSigner) return
+    const { arbitrableContractAddress } = parameters
 
     try {
-      return new ethers.Contract(arbitrableContractAddress, _gtcr, provider)
+      return new ethers.Contract(
+        arbitrableContractAddress,
+        _gtcr,
+        arbitrableSigner
+      )
     } catch (err) {
       console.error(`Error instantiating gtcr contract`, err)
       setErrored({
@@ -64,19 +80,35 @@ export default () => {
       })
       return null
     }
-  }, [fallbackProvider, parameters])
+  }, [arbitrableSigner, parameters])
 
   // Fetch item.
   useEffect(() => {
     if (!gtcr || itemID || !parameters) return
-    const { arbitratorContractAddress, disputeID } = parameters
+    const {
+      arbitratorContractAddress,
+      disputeID,
+      arbitrableChainID
+    } = parameters
     ;(async () => {
+      try {
+        const chainID = await arbitrableSigner.getChainId()
+        if (chainID !== Number(arbitrableChainID))
+          throw new Error(
+            `Mismatch on chain Id. Injected: ${arbitrableChainID}, provider ${chainID}`
+          )
+      } catch (err) {
+        console.error(`Error fetching item`, err)
+        setErrored({
+          title: `Invalid. Mismatch between injected and provider chainID`,
+          subTitle: err.message
+        })
+      }
       try {
         const itemID = await gtcr.arbitratorDisputeIDToItemID(
           arbitratorContractAddress,
           disputeID
         )
-        console.info('itemID', itemID)
         setItemID(itemID)
       } catch (err) {
         console.error('Error fetching item', err)
@@ -86,7 +118,7 @@ export default () => {
         })
       }
     })()
-  }, [gtcr, itemID, parameters])
+  }, [arbitrableSigner, gtcr, itemID, parameters])
 
   if (errored)
     return (
