@@ -140,13 +140,13 @@ export default () => {
 
   if (!itemID || !parameters) return <Card loading bordered />
 
-  const { arbitrableContractAddress, chainId } = parameters
+  const { arbitrableContractAddress, arbitrableChainID } = parameters
 
   return (
     <Card bordered>
       {process.env.REACT_APP_GTCR_URL && (
         <a
-          href={`${process.env.REACT_APP_GTCR_URL}/tcr/${arbitrableContractAddress}/${itemID}?chainId=${chainId}`}
+          href={`${process.env.REACT_APP_GTCR_URL}/tcr/${arbitrableContractAddress}/${itemID}?chainId=${arbitrableChainID}`}
           target="_blank"
           rel="noopener noreferrer"
         >
