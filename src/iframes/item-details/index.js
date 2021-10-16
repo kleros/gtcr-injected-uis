@@ -42,6 +42,7 @@ export default () => {
         .replace(/%3A/g, ':')
         .replace(/%2C/g, ',')
         .replace(/%7D/g, '}')
+        .replace(/%2F/g, '/')
     )
 
     const {

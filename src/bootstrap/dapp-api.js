@@ -1,9 +1,6 @@
 import { ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 
-const env = process.env.NODE_ENV === 'production' ? 'PROD' : 'DEV'
-const ETHEREUM_PROVIDER = process.env[`REACT_APP_${env}_ETHEREUM_PROVIDER`]
-
 const useProvider = () => {
   const [error, setError] = useState(false)
   const [provider, setProvider] = useState()
@@ -20,8 +17,12 @@ const useProvider = () => {
                 params: []
               })
           setProvider(new ethers.providers.Web3Provider(window.ethereum))
-        } else if (ETHEREUM_PROVIDER)
-          setProvider(new ethers.providers.JsonRpcProvider(ETHEREUM_PROVIDER))
+        } else if (process.env.REACT_APP_ETHEREUM_PROVIDER)
+          setProvider(
+            new ethers.providers.JsonRpcProvider(
+              process.env.REACT_APP_ETHEREUM_PROVIDER
+            )
+          )
         else setError('No ethereum provider available.')
       } catch (err) {
         setError('Error setting up provider')
