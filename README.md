@@ -33,6 +33,29 @@ You can do so by changing the component inside bootstrap/app.jss
 
 Keep in mind that the hardcoded, fallback provider has a specific chainId. Remember to update it if you are building for a specific chain.
 
+## Deploy
+
+This interface is meant to be deployed to IPFS.
+To do so, you should:
+
+1. Copy the `.env.example` file to `.env`:
+   ```sh
+   cp .env.example .env
+   ```
+2. Set the appropriate environment variables.
+3. Bundle the app for production:
+   ```sh
+   yarn build
+   ```
+4. Zip the `dist/` directory.
+5. Send the zip file to Kleros IPFS host server through SSH (ask a team member if you are not sure how).
+6. Unzip the file and jump to the folder.
+7. Add the contents of the folder to IPFS:
+   ```sh
+   ipfs add -w -r .
+   ```
+8. The `evidenceDisplayURI` will be `/ipfs/<root_hash>`
+
 ## Other Scripts
 
 - `yarn format` - Lint, fix and prettify all the project.
